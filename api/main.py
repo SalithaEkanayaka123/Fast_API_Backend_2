@@ -16,12 +16,14 @@ app = FastAPI()
 
 model_1 = tf.keras.models.load_model("../saved_models/1")
 model_2 = tf.keras.models.load_model("../saved_models/2")
-model_whitefly = tf.keras.models.load_model("../saved_models/whitefly_model/1")
-model_whitefly_2 = tf.keras.models.load_model("../saved_models/whitefly_model/2")
+model_plesispa = tf.keras.models.load_model("../saved_models/plesispa beetle model")
+# model_whitefly = tf.keras.models.load_model("../saved_models/whitefly_model/1")
+# model_whitefly_2 = tf.keras.models.load_model("../saved_models/whitefly_model/2")
 audio_model = tf.keras.models.load_model("../saved_models/audio_model/audio_model.h5")
 CLASS_NAMES = ['Large ', 'Small', 'Unclear']
 CLASS_NAMES_2 = ['apple1', 'apple2', 'apple3']
 CLASS_NAMES_Whitefly = ['healthy_coconut', 'whietfly_infected_coconut']
+CLASS_NAMES_Plesispa = ['clean', 'infected']
 
 
 @app.get("/ping")
@@ -49,21 +51,36 @@ async def predict(
         'confidence': float(confidence)
     }
 
-@app.post("/predictwhitefly")
+# @app.post("/predictwhitefly")
+# async def predict_whitefly(
+#     file: UploadFile = File(...)
+# ):
+#     image = read_file_as_image(await file.read())
+#     img_batch = np.expand_dims(image, 0)
+#
+#     predictions = model_whitefly_2.predict(img_batch)
+#     predicted_class = CLASS_NAMES_Whitefly[np.argmax(predictions[0])]
+#     confidence = np.max(predictions[0])
+#     return {
+#         'class': predicted_class,
+#         'confidence': float(confidence)
+#     }
+
+
+@app.post("/predictplesispa")
 async def predict_whitefly(
     file: UploadFile = File(...)
 ):
     image = read_file_as_image(await file.read())
     img_batch = np.expand_dims(image, 0)
 
-    predictions = model_whitefly_2.predict(img_batch)
-    predicted_class = CLASS_NAMES_Whitefly[np.argmax(predictions[0])]
+    predictions = model_plesispa.predict(img_batch)
+    predicted_class = CLASS_NAMES_Plesispa[np.argmax(predictions[0])]
     confidence = np.max(predictions[0])
     return {
         'class': predicted_class,
         'confidence': float(confidence)
     }
-
 
 @app.post("/audio")
 async def audio_predict(
