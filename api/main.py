@@ -1,5 +1,3 @@
-import os
-import pyrebase
 import pathlib
 import shutil
 
@@ -26,21 +24,6 @@ CLASS_NAMES = ['Large ', 'Small', 'Unclear']
 CLASS_NAMES_2 = ['apple1', 'apple2', 'apple3']
 CLASS_NAMES_Whitefly = ['healthy_coconut', 'whietfly_infected_coconut']
 CLASS_NAMES_Plesispa = ['clean', 'infected']
-
-config = {
-  "apiKey": os.environ['FIREBASE_API_KEY'],
-  "authDomain": "esp32-file-database.firebaseapp.com",
-  "databaseURL": "https://esp32-file-database-default-rtdb.asia-southeast1.firebasedatabase.app",
-  "projectId": "esp32-file-database",
-  "storageBucket": "esp32-file-database.appspot.com",
-  "messagingSenderId": "474708048889",
-  "appId": "1:474708048889:web:f4b097e89318fcfbb85b28",
-  "measurementId": "G-0S4HR5CH8X"
-}
-
-firebase = pyrebase.initialize_app(config)
-auth = firebase.auth()
-
 
 @app.get("/ping")
 async def ping():
