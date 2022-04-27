@@ -1,6 +1,6 @@
 import pathlib
 import shutil
-
+import cv2
 import aiofiles as aiofiles
 from fastapi import FastAPI, File, UploadFile
 import uvicorn
@@ -16,7 +16,7 @@ app = FastAPI()
 
 model_1 = tf.keras.models.load_model("../saved_models/1")
 model_2 = tf.keras.models.load_model("../saved_models/2")
-model_plesispa = tf.keras.models.load_model("../saved_models/plesispa beetle model")
+model_plesispa = tf.keras.models.load_model("../saved_models/Plesispa beetle model version 2")
 model_whitefly = tf.keras.models.load_model("../saved_models/whitefly_model/1")
 model_whitefly_2 = tf.keras.models.load_model("../saved_models/whitefly_model/2")
 audio_model = tf.keras.models.load_model("../saved_models/audio_model/audio_model.h5")
@@ -31,7 +31,10 @@ async def ping():
 
 
 def read_file_as_image(data) -> np.ndarray:
+
     image = np.array(Image.open(BytesIO(data)))
+    image = cv2.resize(image, dsize=(416, 416), interpolation=cv2.INTER_CUBIC)
+    #image = image.resize(image , (416, 416))
     return image
 
 
@@ -70,8 +73,11 @@ async def predict_whitefly(
 async def predict_whitefly(
     file: UploadFile = File(...)
 ):
+   # data = data.resize((416, 416), Image.ANTIALIAS)
     image = read_file_as_image(await file.read())
+    #
     img_batch = np.expand_dims(image, 0)
+
 
     predictions = model_plesispa.predict(img_batch)
     predicted_class = CLASS_NAMES_Plesispa[np.argmax(predictions[0])]
