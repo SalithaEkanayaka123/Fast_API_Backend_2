@@ -70,7 +70,7 @@ async def predict_whitefly(
 
 
 @app.post("/predictplesispa")
-async def predict_whitefly(
+async def predict_plesispa(
     file: UploadFile = File(...)
 ):
    # data = data.resize((416, 416), Image.ANTIALIAS)
