@@ -55,6 +55,18 @@ def register(auth_details: AuthDetails):
     })
     return
 
+@app.post('/login')
+def login (auth_details: AuthDetails):
+    user = None
+    for x in users:
+        if x['username'] == auth_details.username:
+            user = x
+            break
+    if(user is None) or (not auth_handler.verify_password(auth_details.password, user['password'])):
+        raise HTTPException(status_code=401, detail='Invalid username and, or password')
+    token = auth_handler.encode_token(user['username'])
+    return {'token' : token}
+
 
 
 def read_file_as_image(data) -> np.ndarray:
