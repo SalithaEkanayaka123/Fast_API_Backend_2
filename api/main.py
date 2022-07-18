@@ -1,9 +1,10 @@
 # FastAPI related imports and Machine learning related.
 import pathlib
 import shutil
+
 import cv2
 import aiofiles as aiofiles
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 import uvicorn
 import numpy as np
 from io import BytesIO
@@ -40,6 +41,20 @@ CLASS_NAMES_Plesispa = ['clean', 'infected']
 @app.get("/ping")
 async def ping():
     return "Hello, I am alive"
+
+
+# User related endpoints.
+@app.post('/register', status_code=201)
+def register(auth_details: AuthDetails):
+    if any(x['username'] == auth_details.username for x in users):
+        raise HTTPException(status_code=400, details="Username is taken")
+    hashed_password = auth_handler.get_password_hash(auth_details.password)
+    users.append({
+        'username': auth_details.username,
+        'password': hashed_password
+    })
+    return
+
 
 
 def read_file_as_image(data) -> np.ndarray:
