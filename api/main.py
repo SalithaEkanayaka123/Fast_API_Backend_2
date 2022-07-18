@@ -51,7 +51,7 @@ async def ping():
     return "Hello, I am alive"
 
 @app.get("/protect/ping")
-async def ping(username=Depends(auth_handler.auth_wrapper)):
+async def ping(username: Depends(auth_handler.auth_wrapper)):
     return "Hello, I am alive (Protected)"
 
 
@@ -172,7 +172,7 @@ async def create_upload_file(file: UploadFile = File(...)):
 
 # Database INSERT  (Related to users) - Unprotected.
 @app.post('/add-user')
-def add_user(details: CreateUsers, db: Session=Depends(get_db)):
+def add_user(details: CreateUsers, db: Session = Depends(get_db)):
     to_create = User(
         title=details.title,
         description=details.description
@@ -184,9 +184,13 @@ def add_user(details: CreateUsers, db: Session=Depends(get_db)):
         "create_id": to_create.id
     }
 
-# Database GET (Related to user) - Unprotected.
+# Database GET (Related to user) - protected.
 @app.get("/get-user")
-def get_by_id(id: int,  db: Session = Depends(get_db())):
+def get_by_id(
+        username: Depends(auth_handler.auth_wrapper),
+        id: int,
+        db: Session = Depends(get_db()),
+              ):
     return db.query(User).filter(User.id == id).first()
 
 if __name__ == "__main__":
