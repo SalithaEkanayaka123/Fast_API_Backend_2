@@ -18,6 +18,14 @@ from methods.audio_methods import preprocess_dataset, audio_labels, create_uploa
 
 app = FastAPI()
 
+# Demo array for maintain users.
+"""
+This array is for demo purpose, 
+need to be replaced with the user table. (SQL)
+"""
+auth_handler = AuthHandler()
+users = []
+
 model_1 = tf.keras.models.load_model("../saved_models/1")
 model_2 = tf.keras.models.load_model("../saved_models/2")
 model_plesispa = tf.keras.models.load_model("../saved_models/Plesispa beetle model version 2")
