@@ -4,7 +4,7 @@ import shutil
 
 import cv2
 import aiofiles as aiofiles
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 import uvicorn
 import numpy as np
 from io import BytesIO
@@ -41,6 +41,10 @@ CLASS_NAMES_Plesispa = ['clean', 'infected']
 @app.get("/ping")
 async def ping():
     return "Hello, I am alive"
+
+@app.get("/protect/ping")
+async def ping(username=Depends(auth_handler.auth_wrapper)):
+    return "Hello, I am alive (Protected)"
 
 
 # User related endpoints. (With password hashing).
