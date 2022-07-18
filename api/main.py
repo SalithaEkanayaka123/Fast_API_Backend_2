@@ -12,8 +12,8 @@ from PIL import Image
 import tensorflow as tf
 
 # Authentication related imports.
-from .auth import AuthHandler
-from .schemas import AuthDetails
+from auth import AuthHandler
+from schemas import AuthDetails
 
 from methods.audio_methods import preprocess_dataset, audio_labels, create_upload_file
 
@@ -43,11 +43,11 @@ async def ping():
     return "Hello, I am alive"
 
 
-# User related endpoints.
+# User related endpoints. (With password hashing).
 @app.post('/register', status_code=201)
 def register(auth_details: AuthDetails):
     if any(x['username'] == auth_details.username for x in users):
-        raise HTTPException(status_code=400, details="Username is taken")
+        raise HTTPException(status_code=400, detail="Username is taken")
     hashed_password = auth_handler.get_password_hash(auth_details.password)
     users.append({
         'username': auth_details.username,
@@ -65,7 +65,7 @@ def login (auth_details: AuthDetails):
     if(user is None) or (not auth_handler.verify_password(auth_details.password, user['password'])):
         raise HTTPException(status_code=401, detail='Invalid username and, or password')
     token = auth_handler.encode_token(user['username'])
-    return {'token' : token}
+    return {'token': token}
 
 
 

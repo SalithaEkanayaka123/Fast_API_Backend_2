@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 class AuthHandler:
     security = HTTPBearer()
-    pwd_context = CryptContext(schema=['bcrypt'], deprecated='auto')
+    pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
     secret = 'SECRET'
 
     # String password hashing method. When string password is given.
