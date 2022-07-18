@@ -1,8 +1,8 @@
 # FastAPI related imports and Machine learning related.
 import pathlib
 import shutil
-
 import cv2
+
 import aiofiles as aiofiles
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 import uvicorn
@@ -14,6 +14,9 @@ import tensorflow as tf
 # Authentication related imports.
 from auth import AuthHandler
 from schemas import AuthDetails
+
+# PostgreSQL database import statements.
+
 
 from methods.audio_methods import preprocess_dataset, audio_labels, create_upload_file
 
@@ -161,6 +164,9 @@ async def create_upload_file(file: UploadFile = File(...)):
             'class': predicted_class,
             'confidence': float(confidence)
         }
+
+# Database insert and retrieve queries (Related to users).
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host='localhost', port=8000)

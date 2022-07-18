@@ -7,3 +7,4 @@ tensorflow-serving-api==2.8.0
 matplotlib
 numpy
 bcrypt
+sqlalchemy
