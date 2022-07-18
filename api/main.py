@@ -1,3 +1,4 @@
+# FastAPI related imports and Machine learning related.
 import pathlib
 import shutil
 import cv2
@@ -9,6 +10,9 @@ from io import BytesIO
 from PIL import Image
 import tensorflow as tf
 
+# Authentication related imports.
+from .auth import AuthHandler
+from .schemas import AuthDetails
 
 from methods.audio_methods import preprocess_dataset, audio_labels, create_upload_file
 
