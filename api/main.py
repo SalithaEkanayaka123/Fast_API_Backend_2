@@ -12,6 +12,8 @@ from PIL import Image
 import tensorflow as tf
 
 # Authentication related imports.
+from flask import jsonify
+from sqlalchemy.ext import serializer
 from sqlalchemy.orm import Session
 
 from auth import AuthHandler
@@ -32,7 +34,6 @@ from methods.audio_methods import preprocess_dataset, audio_labels, create_uploa
 app = FastAPI()
 
 auth_handler = AuthHandler()
-
 
 # Store all the username from the db when application start.
 users = []
@@ -74,15 +75,18 @@ def register(auth_details: CreateUsers, db: Session = Depends(get_db)):
 
 # User login with JWT auth.
 @app.post('/login')
-def login(auth_details: AuthDetails):
+def login(auth_details: AuthDetails, db: Session = Depends(get_db)):
     user = None
-    for x in users:
-        if x['username'] == auth_details.username:
-            user = x
-            break
-    if (user is None) or (not auth_handler.verify_password(auth_details.password, user['password'])):
+    db_user = crud.get_by_name(name=auth_details.username, db=db)
+    if db_user:
+        user = User(
+            name=db_user.name,
+            hash_password=db_user.hash_password
+        )
+        print(user.hash_password)
+    if (user is None) or (not auth_handler.verify_password(auth_details.password, user.hash_password)):
         raise HTTPException(status_code=401, detail='Invalid username and, or password')
-    token = auth_handler.encode_token(user['username'])
+    token = auth_handler.encode_token(user.name)
     return {'token': token}
 
 
@@ -238,6 +242,7 @@ def get_by_id(id: int, db: Session = Depends(get_db)):
 @app.get("/get-users")
 def get_by_id(db: Session = Depends(get_db)):
     return db.query(User).offset(0).limit(100).all()
+
 
 # Database GET-ALL (Related to user) - TEST
 @app.get("/get-users-name")
