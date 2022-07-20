@@ -9,3 +9,5 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     hash_password = Column(String, nullable=False)
+
+    # Add other necessary parameters for the user.
