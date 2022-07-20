@@ -46,16 +46,18 @@ CLASS_NAMES_2 = ['apple1', 'apple2', 'apple3']
 CLASS_NAMES_Whitefly = ['healthy_coconut', 'whietfly_infected_coconut']
 CLASS_NAMES_Plesispa = ['clean', 'infected']
 
-@app.get("/ping")
-async def ping():
-    return "Hello, I am alive"
 
-@app.get("/protect/ping")
-async def ping(username=Depends(auth_handler.auth_wrapper)):
-    return "Hello, I am alive (Protected)"
+# ----------------------------------------------------------------------------
+# Created By  : Anawaratne M.A.N.A.
+# Created Date: 2022/7/18
+# version ='1.0'
+# ---------------------------------------------------------------------------
+""" JWT Auth related endpoints """
+# ---------------------------------------------------------------------------
+# Status : Work in Progress.
+# ---------------------------------------------------------------------------
 
-
-# User related endpoints. (With password hashing).
+# User registration (With password hashing).
 @app.post('/register', status_code=201)
 def register(auth_details: AuthDetails):
     if any(x['username'] == auth_details.username for x in users):
@@ -67,31 +69,50 @@ def register(auth_details: AuthDetails):
     })
     return
 
+# User login with JWT auth.
 @app.post('/login')
-def login (auth_details: AuthDetails):
+def login(auth_details: AuthDetails):
     user = None
     for x in users:
         if x['username'] == auth_details.username:
             user = x
             break
-    if(user is None) or (not auth_handler.verify_password(auth_details.password, user['password'])):
+    if (user is None) or (not auth_handler.verify_password(auth_details.password, user['password'])):
         raise HTTPException(status_code=401, detail='Invalid username and, or password')
     token = auth_handler.encode_token(user['username'])
     return {'token': token}
 
+# Testing endpoint with JWT (Protected routes).
+@app.get("/ping")
+async def ping():
+    return "Hello, I am alive"
 
+# Testing endpoint with JWT (Protected routes).
+@app.get("/protect/ping", dependencies=[Depends(auth_handler.auth_wrapper)])
+async def ping():
+    return "Hello, I am alive (Protected)"
+
+
+# ----------------------------------------------------------------------------
+# Created By  : @Team
+# Created Date: -
+# version ='1.0'
+# ---------------------------------------------------------------------------
+""" Machine learning model related endpoints """
+# ---------------------------------------------------------------------------
+# Status : Work in Progress.
+# ---------------------------------------------------------------------------
 
 def read_file_as_image(data) -> np.ndarray:
-
     image = np.array(Image.open(BytesIO(data)))
     image = cv2.resize(image, dsize=(416, 416), interpolation=cv2.INTER_CUBIC)
-    #image = image.resize(image , (416, 416))
+    # image = image.resize(image , (416, 416))
     return image
 
 
 @app.post("/predict")
 async def predict(
-    file: UploadFile = File(...)
+        file: UploadFile = File(...)
 ):
     image = read_file_as_image(await file.read())
     img_batch = np.expand_dims(image, 0)
@@ -104,9 +125,10 @@ async def predict(
         'confidence': float(confidence)
     }
 
+
 @app.post("/predictwhitefly")
 async def predict_whitefly(
-    file: UploadFile = File(...)
+        file: UploadFile = File(...)
 ):
     image = read_file_as_image(await file.read())
     img_batch = np.expand_dims(image, 0)
@@ -122,13 +144,12 @@ async def predict_whitefly(
 
 @app.post("/predictplesispa")
 async def predict_plesispa(
-    file: UploadFile = File(...)
+        file: UploadFile = File(...)
 ):
-   # data = data.resize((416, 416), Image.ANTIALIAS)
+    # data = data.resize((416, 416), Image.ANTIALIAS)
     image = read_file_as_image(await file.read())
     #
     img_batch = np.expand_dims(image, 0)
-
 
     predictions = model_plesispa.predict(img_batch)
     predicted_class = CLASS_NAMES_Plesispa[np.argmax(predictions[0])]
@@ -138,10 +159,11 @@ async def predict_plesispa(
         'confidence': float(confidence)
     }
 
+
 @app.post("/audio")
 async def audio_predict(
-    # Save the file.
-    file: UploadFile = File(...)
+        # Save the file.
+        file: UploadFile = File(...)
 ):
     print(await create_upload_file(await file.read())['info'])
     audio = preprocess_dataset(await file.read())
@@ -153,6 +175,7 @@ async def audio_predict(
         'class': predicted_class,
         'confidence': float(confidence)
     }
+
 
 @app.post("/upload-file/")
 async def create_upload_file(file: UploadFile = File(...)):
@@ -170,6 +193,17 @@ async def create_upload_file(file: UploadFile = File(...)):
             'confidence': float(confidence)
         }
 
+
+# ----------------------------------------------------------------------------
+# Created By  : Anawaratne M.A.N.A.
+# Created Date: 2022/7/19
+# version ='1.0'
+# ---------------------------------------------------------------------------
+""" Database CRUD related endpoints """
+# ---------------------------------------------------------------------------
+# Status : Work in Progress.
+# ---------------------------------------------------------------------------
+
 # Database INSERT  (Related to users) - Unprotected.
 @app.post('/add-user')
 def add_user(details: CreateUsers, db: Session = Depends(get_db)):
@@ -183,6 +217,7 @@ def add_user(details: CreateUsers, db: Session = Depends(get_db)):
         "success": True,
         "create_id": to_create.id
     }
+
 
 # Database GET (Related to user) - protected. / ERROR.
 # @app.get("/get-user")
