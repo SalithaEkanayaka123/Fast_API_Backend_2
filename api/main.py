@@ -15,13 +15,14 @@ import tensorflow as tf
 from sqlalchemy.orm import Session
 
 from auth import AuthHandler
-from db.database import get_db
+from db.database import get_db, engine
 from db.model import User
 from db.schema import CreateUsers
 from schemas import AuthDetails
 
-# PostgreSQL database import statements.
-
+# PostgreSQL database import statements. (Autogenerate tables).
+import db.model as model
+model.Base.metadata.create_all(bind=engine)
 
 from methods.audio_methods import preprocess_dataset, audio_labels, create_upload_file
 
@@ -204,12 +205,12 @@ async def create_upload_file(file: UploadFile = File(...)):
 # Status : Work in Progress.
 # ---------------------------------------------------------------------------
 
-# Database INSERT  (Related to users) - Unprotected.
+# Database INSERT  (Related to users) - Testing method / Hash the password.
 @app.post('/add-user')
 def add_user(details: CreateUsers, db: Session = Depends(get_db)):
     to_create = User(
-        title=details.title,
-        description=details.description
+        name=details.username,
+        hash_password=details.password
     )
     db.add(to_create)
     db.commit()
@@ -219,10 +220,15 @@ def add_user(details: CreateUsers, db: Session = Depends(get_db)):
     }
 
 
-# Database GET (Related to user) - protected. / ERROR.
-# @app.get("/get-user")
-# def get_by_id(id: int, db: Session = Depends(get_db())):
-#     return db.query(User).filter(User.id == id).first()
+# Database GET (Related to user)
+@app.get("/get-user")
+def get_by_id(id: int, db: Session = Depends(get_db)):
+    return db.query(User).filter(User.id == id).first()
+
+# Databae GET-ALL (Related to user) - TEST
+@app.get("/get-users")
+def get_by_id(db: Session = Depends(get_db)):
+    return db.query(User).offset(0).limit(100).all()
 
 if __name__ == "__main__":
     uvicorn.run(app, host='localhost', port=8000)
