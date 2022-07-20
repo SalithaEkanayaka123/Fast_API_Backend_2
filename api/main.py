@@ -15,6 +15,7 @@ import tensorflow as tf
 from sqlalchemy.orm import Session
 
 from auth import AuthHandler
+from db import crud
 from db.database import get_db, engine
 from db.model import User
 from db.schema import CreateUsers
@@ -62,7 +63,8 @@ CLASS_NAMES_Plesispa = ['clean', 'infected']
 # User registration (With password hashing).
 @app.post('/register', status_code=201)
 def register(auth_details: CreateUsers, db: Session = Depends(get_db)):
-    if any(x['username'] == auth_details.username for x in users):
+    db_user = crud.get_by_name(name=auth_details.username, db=db)
+    if db_user:
         raise HTTPException(status_code=400, detail="Username is taken")
     hashed_password = auth_handler.get_password_hash(auth_details.password)
     auth_details.password = hashed_password

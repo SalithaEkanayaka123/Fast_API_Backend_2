@@ -34,4 +34,5 @@ def test_method():
         "/get-users-name/?name=Akash",
 
     )
-    print (response)
+    data = response.json()
+    print(data)
