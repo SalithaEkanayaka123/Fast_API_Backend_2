@@ -16,8 +16,10 @@ from sqlalchemy.orm import Session
 
 from auth import AuthHandler
 from db.database import get_db, engine
+from db.helper import get_user_list
 from db.model import User
 from db.schema import CreateUsers
+from db.crud import insert_user
 from schemas import AuthDetails
 
 # PostgreSQL database import statements. (Autogenerate tables).
@@ -60,15 +62,13 @@ CLASS_NAMES_Plesispa = ['clean', 'infected']
 
 # User registration (With password hashing).
 @app.post('/register', status_code=201)
-def register(auth_details: AuthDetails):
+def register(auth_details: CreateUsers, db: Session = Depends(get_db)):
     if any(x['username'] == auth_details.username for x in users):
         raise HTTPException(status_code=400, detail="Username is taken")
     hashed_password = auth_handler.get_password_hash(auth_details.password)
-    users.append({
-        'username': auth_details.username,
-        'password': hashed_password
-    })
-    return
+    auth_details.password = hashed_password
+    response = insert_user(details=auth_details, db=db)
+    return response
 
 # User login with JWT auth.
 @app.post('/login')
@@ -86,7 +86,7 @@ def login(auth_details: AuthDetails):
 # Testing endpoint with JWT (Protected routes).
 @app.get("/ping")
 async def ping():
-    return "Hello, I am alive"
+    get_user_list()
 
 # Testing endpoint with JWT (Protected routes).
 @app.get("/protect/ping", dependencies=[Depends(auth_handler.auth_wrapper)])
@@ -225,10 +225,14 @@ def add_user(details: CreateUsers, db: Session = Depends(get_db)):
 def get_by_id(id: int, db: Session = Depends(get_db)):
     return db.query(User).filter(User.id == id).first()
 
-# Databae GET-ALL (Related to user) - TEST
+# Database GET-ALL (Related to user) - TEST
 @app.get("/get-users")
 def get_by_id(db: Session = Depends(get_db)):
     return db.query(User).offset(0).limit(100).all()
+
+# Database DELETE (Related to user) - @Implement here.
+
+# Database UPDATE (Related to user) - @Implement here.
 
 if __name__ == "__main__":
     uvicorn.run(app, host='localhost', port=8000)
