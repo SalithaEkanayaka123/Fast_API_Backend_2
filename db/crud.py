@@ -20,3 +20,8 @@ def insert_user(details: CreateUsers, db: Session):
 # CRUD Method to get all the users.
 def get_all_users(db: Session):
     return db.query(User).offset(0).limit(100).all()
+
+
+# CRUD method to get a single user.
+def get_by_name(name: str, db: Session):
+    return db.query(User).filter(User.name == name).first()

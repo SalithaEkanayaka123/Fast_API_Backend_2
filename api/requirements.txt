@@ -8,3 +8,4 @@ matplotlib
 numpy
 bcrypt
 sqlalchemy
+pytest

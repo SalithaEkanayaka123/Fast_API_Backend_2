@@ -16,7 +16,6 @@ from sqlalchemy.orm import Session
 
 from auth import AuthHandler
 from db.database import get_db, engine
-from db.helper import get_user_list
 from db.model import User
 from db.schema import CreateUsers
 from db.crud import insert_user
@@ -24,18 +23,17 @@ from schemas import AuthDetails
 
 # PostgreSQL database import statements. (Autogenerate tables).
 import db.model as model
+
 model.Base.metadata.create_all(bind=engine)
 
 from methods.audio_methods import preprocess_dataset, audio_labels, create_upload_file
 
 app = FastAPI()
 
-# Demo array for maintain users.
-"""
-This array is for demo purpose, 
-need to be replaced with the user table. (SQL)
-"""
 auth_handler = AuthHandler()
+
+
+# Store all the username from the db when application start.
 users = []
 
 model_1 = tf.keras.models.load_model("../saved_models/1")
@@ -49,13 +47,14 @@ CLASS_NAMES_2 = ['apple1', 'apple2', 'apple3']
 CLASS_NAMES_Whitefly = ['healthy_coconut', 'whietfly_infected_coconut']
 CLASS_NAMES_Plesispa = ['clean', 'infected']
 
-
 # ----------------------------------------------------------------------------
 # Created By  : Anawaratne M.A.N.A.
 # Created Date: 2022/7/18
 # version ='1.0'
 # ---------------------------------------------------------------------------
 """ JWT Auth related endpoints """
+
+
 # ---------------------------------------------------------------------------
 # Status : Work in Progress.
 # ---------------------------------------------------------------------------
@@ -70,6 +69,7 @@ def register(auth_details: CreateUsers, db: Session = Depends(get_db)):
     response = insert_user(details=auth_details, db=db)
     return response
 
+
 # User login with JWT auth.
 @app.post('/login')
 def login(auth_details: AuthDetails):
@@ -83,10 +83,12 @@ def login(auth_details: AuthDetails):
     token = auth_handler.encode_token(user['username'])
     return {'token': token}
 
+
 # Testing endpoint with JWT (Protected routes).
 @app.get("/ping")
-async def ping():
-    get_user_list()
+async def ping(db: Session = Depends(get_db)):
+    return "Something"
+
 
 # Testing endpoint with JWT (Protected routes).
 @app.get("/protect/ping", dependencies=[Depends(auth_handler.auth_wrapper)])
@@ -100,6 +102,8 @@ async def ping():
 # version ='1.0'
 # ---------------------------------------------------------------------------
 """ Machine learning model related endpoints """
+
+
 # ---------------------------------------------------------------------------
 # Status : Work in Progress.
 # ---------------------------------------------------------------------------
@@ -201,6 +205,8 @@ async def create_upload_file(file: UploadFile = File(...)):
 # version ='1.0'
 # ---------------------------------------------------------------------------
 """ Database CRUD related endpoints """
+
+
 # ---------------------------------------------------------------------------
 # Status : Work in Progress.
 # ---------------------------------------------------------------------------
@@ -225,10 +231,17 @@ def add_user(details: CreateUsers, db: Session = Depends(get_db)):
 def get_by_id(id: int, db: Session = Depends(get_db)):
     return db.query(User).filter(User.id == id).first()
 
+
 # Database GET-ALL (Related to user) - TEST
 @app.get("/get-users")
 def get_by_id(db: Session = Depends(get_db)):
     return db.query(User).offset(0).limit(100).all()
+
+# Database GET-ALL (Related to user) - TEST
+@app.get("/get-users-name")
+def get_by_name(name: str, db: Session = Depends(get_db)):
+    return db.query(User).filter(User.name == name).first()
+
 
 # Database DELETE (Related to user) - @Implement here.
 
