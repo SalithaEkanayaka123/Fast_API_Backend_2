@@ -1,5 +1,6 @@
-from sqlalchemy import Integer, String
-from sqlalchemy.sql.schema import Column
+from sqlalchemy import Integer, String, Date
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql.schema import Column, ForeignKey
 from db.database import Base
 
 
@@ -11,3 +12,21 @@ class User(Base):
     hash_password = Column(String, nullable=False)
 
     # Add other necessary parameters for the user.
+
+
+class Classification(Base):
+    __tablename__ = 'classifications'
+
+    id = Column(Integer, primary_key=True)
+    category = Column(String, nullable=False)
+    filename = Column(String, nullable=False)
+    label = Column(String, nullable=False)
+    confidence = Column(String, nullable=True)
+    date = Column(Date, nullable=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+
+    # Relationships
+    user = relationship("User", back_populates='classifications')
+
+    # Refactor the columns appropriately.
+
