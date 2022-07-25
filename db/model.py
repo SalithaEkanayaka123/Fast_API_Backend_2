@@ -23,7 +23,7 @@ class Classification(Base):
     label = Column(String, nullable=False)
     confidence = Column(String, nullable=True)
     date = Column(Date, nullable=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
 
     # Relationships
     user = relationship("User", back_populates='classifications')
