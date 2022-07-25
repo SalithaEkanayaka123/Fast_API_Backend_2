@@ -1,31 +1,26 @@
 # FastAPI related imports and Machine learning related.
 import pathlib
 import shutil
-import cv2
-
-import aiofiles as aiofiles
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
-import uvicorn
-import numpy as np
 from io import BytesIO
-from PIL import Image
+
+import cv2
+import numpy as np
 import tensorflow as tf
-
+import uvicorn
+from PIL import Image
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 # Authentication related imports.
-from flask import jsonify
-from sqlalchemy.ext import serializer
 from sqlalchemy.orm import Session
-
-from auth import AuthHandler
-from db import crud
-from db.database import get_db, engine
-from db.model import User
-from db.schema import CreateUsers
-from db.crud import insert_user
-from schemas import AuthDetails
 
 # PostgreSQL database import statements. (Autogenerate tables).
 import db.model as model
+from auth import AuthHandler
+from db import crud
+from db.crud import insert_user
+from db.database import get_db, engine
+from db.model import User
+from db.schema import CreateUsers
+from schemas import AuthDetails
 
 model.Base.metadata.create_all(bind=engine)
 
