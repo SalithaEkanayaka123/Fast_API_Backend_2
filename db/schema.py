@@ -23,9 +23,12 @@ class CreateClassification(BaseModel):
     confidence_value: str
     date: str
 
+    class Config:
+        orm_mode = True
+
 
 # Create classification request.
-class ReqeustClassificationHistory(BaseModel):
+class ReqeustClassificationHistory(CreateClassification):
     parameter: CreateClassification = Field(...)
 
 
