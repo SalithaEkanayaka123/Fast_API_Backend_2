@@ -210,11 +210,11 @@ async def create_upload_file(file: UploadFile = File(...)):
 # Created Date: 2022/7/19
 # version ='1.0'
 # ---------------------------------------------------------------------------
-""" Database CRUD related endpoints """
+""" Database CRUD related endpoints - TEST """
 
 
 # ---------------------------------------------------------------------------
-# Status : Work in Progress.
+# Status : Work in Progress. Remove after working.
 # ---------------------------------------------------------------------------
 
 # Database INSERT  (Related to users) - Testing method / Hash the password.
@@ -253,6 +253,18 @@ def get_by_name(name: str, db: Session = Depends(get_db)):
 # Database DELETE (Related to user) - @Implement here.
 
 # Database UPDATE (Related to user) - @Implement here.
+
+# ----------------------------------------------------------------------------
+# Created By  : Anawaratne M.A.N.A.
+# Created Date: 2022/7/19
+# version ='1.0'
+# ---------------------------------------------------------------------------
+""" Classification history related. """
+
+
+# ---------------------------------------------------------------------------
+# Status : Work in Progress.
+# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     uvicorn.run(app, host='localhost', port=8000)
