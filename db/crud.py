@@ -50,3 +50,8 @@ def insert_classification(details: ReqeustClassificationHistory, db: Session):
         "success": True,
         "create_id": create_classification.id
     }
+
+
+# CRUD method to get classification data.
+def get_classification_details(uid: int, db: Session):
+    return db.query(Classification).filter(Classification.user_id == uid).all()
