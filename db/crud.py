@@ -26,6 +26,7 @@ def get_all_users(db: Session, skin: int = 0, limit: int = 100):
 def get_by_name(name: str, db: Session):
     return db.query(User).filter(User.name == name).first()
 
+
 # CRUD method to get a single user by id.
 def get_by_id(id: int, db: Session):
     return db.query(User).filter(User.id == id).first()

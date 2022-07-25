@@ -1,7 +1,9 @@
 from typing import TypeVar, Generic, Optional
 from pydantic import BaseModel, Field
 from pydantic.generics import GenericModel
+
 T = TypeVar('T')
+
 
 # User model base class.
 class CreateUsers(BaseModel):
@@ -10,6 +12,7 @@ class CreateUsers(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 # Schema class for classification history.
 class CreateClassification(BaseModel):
@@ -20,9 +23,11 @@ class CreateClassification(BaseModel):
     confidence_value: str
     date: str
 
+
 # Create classification request.
 class ReqeustClassificationHistory(BaseModel):
     parameter: CreateClassification = Field(...)
+
 
 # Response schema for the classification.
 class ResponseClassificationHistory(GenericModel, Generic[T]):
@@ -31,7 +36,3 @@ class ResponseClassificationHistory(GenericModel, Generic[T]):
     date: str
     message: str
     result: Optional[T]
-
-
-
-
