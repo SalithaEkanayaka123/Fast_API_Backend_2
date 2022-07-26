@@ -10,7 +10,7 @@ password = '76FTjP5KuSwP5aA'
 host = 'ml-backend-postgresql.postgres.database.azure.com'
 database = 'postgres'
 
-SQLALCHEMY_DATABASE_URL = "postgresql://akash:76FTjP5KuSwP5aA@ml-backend-postgresql.postgres.database.azure.com/postgres?sslmode=require"
+SQLALCHEMY_DATABASE_URL = "postgresql://myadmin:76FTjP5KuSwP5aA@ml-backend-postgresql-server.postgres.database.azure.com/postgres?sslmode=require"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

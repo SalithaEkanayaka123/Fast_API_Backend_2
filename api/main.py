@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 # FastAPI related imports and Machine learning related.
 import pathlib
 import shutil
