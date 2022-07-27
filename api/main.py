@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('../')
 # FastAPI related imports and Machine learning related.
 import pathlib
@@ -20,8 +21,8 @@ from auth import AuthHandler
 from db import crud
 from db.crud import insert_user
 from db.database import get_db, engine
-from db.model import User
-from db.schema import CreateUsers
+from db.model import User, Classification
+from db.schema import CreateUsers, CreateClassification
 from schemas import AuthDetails
 
 model.Base.metadata.create_all(bind=engine)
@@ -257,6 +258,26 @@ def get_by_name(name: str, db: Session = Depends(get_db)):
 # version ='1.0'
 # ---------------------------------------------------------------------------
 """ Classification history related. """
+
+
+# Database INSERT (Related to classification)
+@app.post('/add-classification')
+def add_classification(details: CreateClassification, db: Session = Depends(get_db)):
+    to_create = Classification(
+        category=details.classification_category,
+        filename=details.classification_filename,
+        label=details.classification_label,
+        confidence=details.confidence_value,
+        date=details.date,
+        user_id=details.user_id
+    )
+
+    db.add(to_create)
+    db.commit()
+    return {
+        "success": True,
+        "create_id": to_create.id
+    }
 
 
 # ---------------------------------------------------------------------------
