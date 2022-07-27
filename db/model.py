@@ -10,6 +10,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     hash_password = Column(String, nullable=False)
+    classifications = relationship("Classification", back_populates='user')
 
     # Add other necessary parameters for the user.
 
