@@ -280,6 +280,11 @@ def add_classification(details: CreateClassification, db: Session = Depends(get_
     }
 
 
+# Database GET (Related to classification)
+@app.get("/get-classification")
+def get_by_id(db: Session = Depends(get_db)):
+    return db.query(Classification).offset(0).limit(100).all()
+
 # ---------------------------------------------------------------------------
 # Status : Work in Progress.
 # ---------------------------------------------------------------------------
