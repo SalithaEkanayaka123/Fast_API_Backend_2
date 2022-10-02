@@ -1,8 +1,7 @@
 from datetime import datetime
-
 from sqlalchemy.orm import Session
-from db.model import User, Classification
-from db.schema import CreateUsers, CreateClassification, ReqeustClassificationHistory
+from app.db.model import User, Classification
+from app.db.schema import CreateUsers, CreateClassification, ReqeustClassificationHistory
 
 
 # CRUD Method to insert users.

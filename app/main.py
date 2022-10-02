@@ -1,33 +1,26 @@
-import sys
-
-sys.path.append('../')
 # FastAPI related imports and Machine learning related.
 import pathlib
 import shutil
-from io import BytesIO
-
-import cv2
 import numpy as np
 import tensorflow as tf
 import uvicorn
-from PIL import Image
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 # Authentication related imports.
 from sqlalchemy.orm import Session
 
 # PostgreSQL database import statements. (Autogenerate tables).
-import db.model as model
-from auth import AuthHandler
-from db import crud
-from db.crud import insert_user
-from db.database import get_db, engine
-from db.model import User, Classification
-from db.schema import CreateUsers, CreateClassification
-from schemas import AuthDetails
+import app.db.model as model
+from app.auth import AuthHandler
+from app.db import crud
+from app.db.crud import insert_user
+from app.db.database import get_db, engine
+from app.db.model import User, Classification
+from app.db.schema import CreateUsers, CreateClassification
+from app.schemas import AuthDetails
 
 model.Base.metadata.create_all(bind=engine)
 
-from methods.audio_methods import preprocess_dataset, audio_labels, create_upload_file
+from app.methods.audio_methods import preprocess_dataset, audio_labels, create_upload_file
 
 app = FastAPI()
 
@@ -35,16 +28,7 @@ auth_handler = AuthHandler()
 
 # Store all the username from the db when application start.
 users = []
-
-model_1 = tf.keras.models.load_model("../saved_models/1")
-model_2 = tf.keras.models.load_model("../saved_models/2")
-model_plesispa = tf.keras.models.load_model("../saved_models/Plesispa beetle model version 2")
-model_whitefly = tf.keras.models.load_model("../saved_models/whitefly_model/1")
-model_whitefly_2 = tf.keras.models.load_model("../saved_models/whitefly_model/2")
-audio_model = tf.keras.models.load_model("../saved_models/audio_model/audio_model.h5")
-CLASS_NAMES = ['Large ', 'Small', 'Unclear']
-CLASS_NAMES_2 = ['apple1', 'apple2', 'apple3']
-CLASS_NAMES_Whitefly = ['healthy_coconut', 'whietfly_infected_coconut']
+audio_model = tf.keras.models.load_model('app/models/audio/audio_model.h5')
 CLASS_NAMES_Plesispa = ['clean', 'infected']
 
 # ----------------------------------------------------------------------------
@@ -112,63 +96,6 @@ async def ping():
 # Status : Work in Progress.
 # ---------------------------------------------------------------------------
 
-def read_file_as_image(data) -> np.ndarray:
-    image = np.array(Image.open(BytesIO(data)))
-    image = cv2.resize(image, dsize=(416, 416), interpolation=cv2.INTER_CUBIC)
-    # image = image.resize(image , (416, 416))
-    return image
-
-
-@app.post("/predict")
-async def predict(
-        file: UploadFile = File(...)
-):
-    image = read_file_as_image(await file.read())
-    img_batch = np.expand_dims(image, 0)
-
-    predictions = model_2.predict(img_batch)
-    predicted_class = CLASS_NAMES_2[np.argmax(predictions[0])]
-    confidence = np.max(predictions[0])
-    return {
-        'class': predicted_class,
-        'confidence': float(confidence)
-    }
-
-
-@app.post("/predictwhitefly")
-async def predict_whitefly(
-        file: UploadFile = File(...)
-):
-    image = read_file_as_image(await file.read())
-    img_batch = np.expand_dims(image, 0)
-
-    predictions = model_whitefly_2.predict(img_batch)
-    predicted_class = CLASS_NAMES_Whitefly[np.argmax(predictions[0])]
-    confidence = np.max(predictions[0])
-    return {
-        'class': predicted_class,
-        'confidence': float(confidence)
-    }
-
-
-@app.post("/predictplesispa")
-async def predict_plesispa(
-        file: UploadFile = File(...)
-):
-    # data = data.resize((416, 416), Image.ANTIALIAS)
-    image = read_file_as_image(await file.read())
-    #
-    img_batch = np.expand_dims(image, 0)
-
-    predictions = model_plesispa.predict(img_batch)
-    predicted_class = CLASS_NAMES_Plesispa[np.argmax(predictions[0])]
-    confidence = np.max(predictions[0])
-    return {
-        'class': predicted_class,
-        'confidence': float(confidence)
-    }
-
-
 @app.post("/audio")
 async def audio_predict(
         # Save the file.
@@ -189,7 +116,7 @@ async def audio_predict(
 @app.post("/upload-file/")
 async def create_upload_file(file: UploadFile = File(...)):
     working_dir = pathlib.Path().absolute()
-    file_location = f"{working_dir}\\..\\temp\\{file.filename}"
+    file_location = f"{working_dir}\\app\\temp\\{file.filename}"
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
     audio = preprocess_dataset([str(file_location)])
