@@ -83,6 +83,7 @@ def preprocess_dataset(files):
 # Download File Method.
 async def create_upload_file(file):
     file_location = f"temp/{file.filename}"
+    print(file_location)
     with open(file_location, "wb+") as file_object:
         shutil.copyfileobj(file.file, file_object)
     return {"info": f"file '{file.filename}' saved at '{file_location}'"}

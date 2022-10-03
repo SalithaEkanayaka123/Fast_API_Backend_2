@@ -1,9 +1,8 @@
-tensorflow==2.8.0
+tensorflow-cpu
 fastapi
 uvicorn
 python-multipart
 pillow
-tensorflow-serving-api==2.8.0
 matplotlib
 numpy
 bcrypt
@@ -12,3 +11,4 @@ pytest
 PyJWT==2.4.0
 passlib==1.7.4
 pydantic==1.9.0
+psycopg2
