@@ -19,10 +19,9 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: Log in to registry
-      uses: docker/login-action@v1
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
       with:
-        registry: https://index.docker.io/v1/
         username: ${{ secrets.DOCKER_LOGIN }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
@@ -30,7 +29,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: index.docker.io/${{ secrets.DOCKER_LOGIN }}/nirmith99/backend-deep-learning-docker-workflow:${{ github.sha }}
+        tags: ${{ secrets.DOCKER_LOGIN }}/backend-deep-learning-docker-workflow:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -48,4 +47,4 @@ jobs:
         app-name: 'deeplearningserver'
         slot-name: 'production'
         publish-profile: ${{ secrets.AzureAppService_PublishProfile_29af15466e284397b4d671e359f5de30 }}
-        images: 'index.docker.io/${{ secrets.DOCKER_LOGIN }}/nirmith99/backend-deep-learning-docker-workflow:${{ github.sha }}'
+        images: '${{ secrets.DOCKER_LOGIN }}/backend-deep-learning-docker-workflow:${{ github.sha }}'
