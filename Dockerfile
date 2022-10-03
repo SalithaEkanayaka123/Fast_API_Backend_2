@@ -1,5 +1,5 @@
 # Base Python Image for the container.
-FROM python:3.9
+FROM python:3.10
 # Working directory for the container.
 WORKDIR /code
 # Copy the requirements 
