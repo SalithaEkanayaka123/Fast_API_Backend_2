@@ -1,0 +1,17 @@
+tensorflow==2.8.0
+fastapi
+uvicorn
+python-multipart
+pillow
+tensorflow-serving-api==2.8.0
+matplotlib
+numpy
+bcrypt
+sqlalchemy
+pytest
+SQLAlchemy
+jwt
+passlib
+psycopg2
+opencv-python
+requests==2.28.1
