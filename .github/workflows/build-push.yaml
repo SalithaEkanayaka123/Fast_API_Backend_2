@@ -1,0 +1,17 @@
+name: Fast API docker build push
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the FastAPI Docker image
+      run: docker build -t '${{secrets.DOCKER_LOGIN}}'/cnn-backend:'${{github.sha}}' .
+
+    - name: Login to docker
+      run: docker login --username '${{secrets.DOCKER_LOGIN}}' --password '${{secrets.DOCKER_PASSWORD}}'
+
+    - name: Push the docker image
+      run: docker push '${{secrets.DOCKER_LOGIN}}'/cnn-backend:'${{github.sha}}'
