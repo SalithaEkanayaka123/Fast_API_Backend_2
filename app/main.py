@@ -1,12 +1,17 @@
-# FastAPI related imports and Machine learning related.
 import pathlib
 import shutil
 import numpy as np
 import tensorflow as tf
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
+import requests
+import io
+from io import BytesIO
+from PIL import Image
 # Authentication related imports.
 from sqlalchemy.orm import Session
+import cv2
+import os
 
 # PostgreSQL database import statements. (Autogenerate tables).
 import app.db.model as model
@@ -17,6 +22,7 @@ from app.db.database import get_db, engine
 from app.db.model import User, Classification
 from app.db.schema import CreateUsers, CreateClassification
 from app.schemas import AuthDetails
+from app.db.schema import Request
 
 model.Base.metadata.create_all(bind=engine)
 
@@ -29,6 +35,10 @@ auth_handler = AuthHandler()
 # Store all the username from the db when application start.
 users = []
 audio_model = tf.keras.models.load_model('app/models/audio/audio_model.h5')
+
+model_plesispa = tf.keras.models.load_model("app/models/plesispa")
+model_whitefly_2 = tf.keras.models.load_model("app/models/whitefly/2")
+CLASS_NAMES_Whitefly = ['healthy_coconut', 'whietfly_infected_coconut']
 CLASS_NAMES_Plesispa = ['clean', 'infected']
 
 # ----------------------------------------------------------------------------
@@ -215,6 +225,115 @@ def get_by_id(db: Session = Depends(get_db)):
 # ---------------------------------------------------------------------------
 # Status : Work in Progress.
 # ---------------------------------------------------------------------------
+
+def read_file_as_image(data) -> np.ndarray:
+    image = np.array(Image.open(BytesIO(data)))
+    image = cv2.resize(image, dsize=(416, 416), interpolation=cv2.INTER_CUBIC)
+    # image = image.resize(image , (416, 416))
+    return image
+
+@app.post("/predictwhiteflystring")
+async def predict_whitefly_str(request: Request):
+    image_url = request.image_url
+    filename = image_url.split("/")[-1]
+    filename = filename.split("?alt=media&token")[0]
+    filename = filename.split("-")[0]
+    filename = filename.split("%")[1] + '.jpeg'
+
+    r = requests.get(image_url, stream=True)
+
+    if r.status_code == 200:
+        try:
+            print('done')
+            r.raw.decode_content = True
+            print(r.raw.decode_content)
+            basepath = os.path.dirname(__file__)
+            print(basepath)
+            with open(basepath + filename, 'wb') as f:
+                shutil.copyfileobj(r.raw, f)
+            print('Image successfully Downloaded: ' + filename)
+
+            file_like = open(basepath + filename, "rb")
+            print(file_like.read())
+
+            byteImgIO = io.BytesIO()
+            byteImg = Image.open(basepath + filename)
+            byteImg.save(byteImgIO, "JPEG")
+            byteImgIO.seek(0)
+            byteImg = byteImgIO.read()
+
+
+            image = read_file_as_image(byteImg)
+            img_batch = np.expand_dims(image, 0)
+
+            predictions = model_whitefly_2.predict(img_batch)
+            predicted_class = CLASS_NAMES_Whitefly[np.argmax(predictions[0])]
+            confidence = np.max(predictions[0])
+            return {
+                'class': predicted_class,
+                'confidence': float(confidence)
+            }
+        except:
+            return {
+                'class': "unknown",
+                'confidence': "unknown"
+            }
+    else:
+        return {
+            'class': "unknown",
+            'confidence': "unknown"
+        }
+
+@app.post("/predictplesispastr")
+async def predict_plesispa_str(request: Request):
+    image_url = request.image_url
+    filename = image_url.split("/")[-1]
+    filename = filename.split("?alt=media&token")[0]
+    filename = filename.split("-")[0]
+    filename = filename.split("%")[1] + '.jpeg'
+
+    r = requests.get(image_url, stream=True)
+
+    if r.status_code == 200:
+        try:
+            print('done')
+            r.raw.decode_content = True
+            print(r.raw.decode_content)
+            with open( filename, 'wb') as f:
+                shutil.copyfileobj(r.raw, f)
+            print('Image successfully Downloaded: ' + filename)
+
+            file_like = open(filename, "rb")
+            print(file_like.read())
+
+            byteImgIO = io.BytesIO()
+            byteImg = Image.open(""+filename)
+            byteImg.save(byteImgIO, "JPEG")
+            byteImgIO.seek(0)
+            byteImg = byteImgIO.read()
+
+
+            image = read_file_as_image(byteImg)
+
+            img_batch = np.expand_dims(image, 0)
+
+            predictions = model_plesispa.predict(img_batch)
+            predicted_class = CLASS_NAMES_Plesispa[np.argmax(predictions[0])]
+            confidence = np.max(predictions[0])
+            return {
+                'class': predicted_class,
+                'confidence': float(confidence)
+            }
+        except:
+            return {
+                'class': "unknown",
+                'confidence': "unknown"
+            }
+    else:
+        return {
+            'class': "unknown",
+            'confidence': "unknown"
+        }
 
 if __name__ == "__main__":
     uvicorn.run(app, host='localhost', port=8000)

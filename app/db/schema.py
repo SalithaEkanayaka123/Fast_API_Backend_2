@@ -39,3 +39,9 @@ class ResponseClassificationHistory(GenericModel, Generic[T]):
     date: str
     message: str
     result: Optional[T]
+
+class Request(GenericModel, Generic[T]):
+    parameter: Optional[T] = Field(...)
+
+class Request(BaseModel):
+    image_url: str
