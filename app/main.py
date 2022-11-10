@@ -26,7 +26,6 @@ from app.db.schema import Request
 
 model.Base.metadata.create_all(bind=engine)
 
-
 from app.methods.audio_methods import preprocess_dataset, audio_labels, create_upload_file
 
 app = FastAPI()
