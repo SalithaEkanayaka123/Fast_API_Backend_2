@@ -6,7 +6,7 @@ name: Build and deploy container app to Azure Web App - cnnbackendservice
 on:
   push:
     branches:
-      - new_dev
+      - main
   workflow_dispatch:
 
 jobs:
